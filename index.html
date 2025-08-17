@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Construction Cost Estimator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Construction Cost Estimator</h1>
+
+  <form id="costForm">
+    <h2>Materials</h2>
+    <div id="materials">
+      <div class="material">
+        <input type="text" placeholder="Material name" class="material-name" />
+        <input type="number" step="0.01" min="0" placeholder="Quantity" class="material-qty" />
+        <input type="number" step="0.01" min="0" placeholder="Price per unit ($)" class="material-price" />
+      </div>
+    </div>
+    <button type="button" onclick="addMaterial()">+ Add Material</button>
+
+    <h2>Labor</h2>
+    <input type="number" step="0.01" min="0" id="laborHours" placeholder="Labor hours" />
+    <input type="number" step="0.01" min="0" id="hourlyRate" placeholder="Hourly rate ($)" />
+
+    <h2>Optional Costs</h2>
+    <input type="number" step="0.01" min="0" id="taxPercent" placeholder="Tax % (e.g. 7.5)" />
+    <input type="number" step="0.01" min="0" id="markupPercent" placeholder="Markup % (e.g. 10.0)" />
+
+    <br><br>
+    <button type="submit">Calculate Total</button>
+  </form>
+
+  <h2>Total Cost: $<span id="totalCost">0.00</span></h2>
+
+  <script>
+    function addMaterial() {
+      const materialsDiv = document.getElementById("materials");
+      const newMaterial = document.createElement("div");
+      newMaterial.className = "material";
+      newMaterial.innerHTML = `
+        <input type="text" placeholder="Material name" class="material-name" />
+        <input type="number" step="0.01" min="0" placeholder="Quantity" class="material-qty" />
+        <input type="number" step="0.01" min="0" placeholder="Price per unit ($)" class="material-price" />
+      `;
+      materialsDiv.appendChild(newMaterial);
+    }
+
+    document.getElementById("costForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      let totalMaterialCost = 0;
+      const materials = document.querySelectorAll(".material");
+
+      materials.forEach(mat => {
+        const qty = parseFloat(mat.querySelector(".material-qty").value);
+        const price = parseFloat(mat.querySelector(".material-price").value);
+
+        if (!isNaN(qty) && !isNaN(price)) {
+          totalMaterialCost += qty * price;
+        }
+      });
+
+      const laborHours = parseFloat(document.getElementById("laborHours").value);
+      const hourlyRate = parseFloat(document.getElementById("hourlyRate").value);
+      const laborCost = (!isNaN(laborHours) && !isNaN(hourlyRate)) ? laborHours * hourlyRate : 0;
+
+      const taxPercent = parseFloat(document.getElementById("taxPercent").value) || 0;
+      const markupPercent = parseFloat(document.getElementById("markupPercent").value) || 0;
+
+      let subtotal = totalMaterialCost + laborCost;
+      let taxAmount = subtotal * (taxPercent / 100);
+      let markupAmount = subtotal * (markupPercent / 100);
+
+      let totalCost = subtotal + taxAmount + markupAmount;
+
+      document.getElementById("totalCost").textContent = totalCost.toFixed(2);
+    });
+  </script>
+</body>
+</html>
